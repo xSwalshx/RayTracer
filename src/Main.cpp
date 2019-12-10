@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	//Call Menu Fucntion
 	mainMenu(windowSize);
 
-	return MCG::ShowAndHold();
+  return 0;
 }
 //-------------------------------------------------------------------------------------------------//
 ///Menu System
@@ -101,7 +101,7 @@ void mainMenu(glm::ivec2 _windowSize)
 			break;
 		case 9:
 			//Exit the Program
-
+      return;
 			break;
 		default:
 			//Clear the input and loop
@@ -131,10 +131,6 @@ void subMenu(glm::ivec2 _windowSize)
     //For Loop for valid thread count
 		for (int i = 1; i <= 8; i += i)
 		{
-      //Debug Stuff
-      /*std::cout << "Value of i = " << i << std::endl;
-      Sleep(2000);*/
-			
       //Success Criteria
       if (threadCount == i)
 			{
@@ -149,7 +145,7 @@ void subMenu(glm::ivec2 _windowSize)
         break;
 			}
       //Fail Criteria
-			else if (i != threadCount && i >= 128)
+			else if (i != threadCount && i >= 8)
 			{
         //Reset Thread Count
         threadCount = 0; 
@@ -172,20 +168,25 @@ void rayTracer(glm::ivec2 _windowSize)
 	glm::ivec2 pixelPos;
 	glm::ivec3 pixelCol(255, 0, 0);
 
+  //Objects
 	Camera camera(glm::mat4(1), glm::perspective(0.7f, ((float)_windowSize.x / (float)_windowSize.y), 0.1f, 100.0f));
 	Tracer tracer;
 
-	//Nested for
+	//Nested for to go through X and Y Coords
 	for (int y = 0; y <= _windowSize.y; y++)
 	{
 		for (int x = 0; x <= _windowSize.x; x++)
 		{
+      //Set Pixel Pos to X and Y value from for loop
 			pixelPos = glm::ivec2(x, y);
 
+      //Create a ray
 			Ray ray = camera.createRay(pixelPos, _windowSize);
 
+      //Calculate the pixel Colour
 			glm::vec3 pixelCol = tracer.traceRay(ray);
 
+      //Draw Pixel using Pos and Colour
 			MCG::DrawPixel(pixelPos, pixelCol);
 		}
 	}
@@ -222,8 +223,8 @@ void rayTracerMT(glm::ivec2 _windowSize, int _threadCount)
   //Start Time of Ray Tracer
   std::cout << "****************************************************" << std::endl;
 
-  auto start = std::chrono::system_clock::now();
-  std::time_t start_time = std::chrono::system_clock::to_time_t(start);
+  auto start = std::chrono::system_clock::now(); //Current Time
+  std::time_t start_time = std::chrono::system_clock::to_time_t(start); //Start time of Computation
 
   std::cout << "**Ray Tracer Started at : " << std::ctime(&start_time) << "\n"
             << "****************************************************" << "\n" << std::endl;
@@ -254,16 +255,17 @@ void rayTracerMT(glm::ivec2 _windowSize, int _threadCount)
   }
 
   //End Time of Ray Tracer 
-  auto end = std::chrono::system_clock::now();
-  std::chrono::duration<double> elapsed_seconds = end - start;
-  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+  auto end = std::chrono::system_clock::now(); //Current Time
+  std::chrono::duration<double> elapsed_seconds = end - start; //Difference between start and end time
+  std::time_t end_time = std::chrono::system_clock::to_time_t(end); //End time of Computation
 
   std::cout << "****************************************************" << "\n"
             << "**Finished Ray Tracer at " << std::ctime(&end_time)
             << "**Elapsed time: " << elapsed_seconds.count() << "s\n"
             << "****************************************************" << "\n" << std::endl;
- 
-	return;
+
+  MCG::ShowAndHold();
+  return;
 }
 
 void rayTracerThread(glm::ivec2 _windowSize, ThreadContainer _threadContainer, int _i)
