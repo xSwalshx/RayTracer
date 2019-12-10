@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Geometry.h"
 #include "ThreadContainer.h"
+#include "Menu.h"
 
 //Include Libraries
 #include "../MCG_GFX_Framework/MCG_GFX_Lib.h"
@@ -21,17 +22,10 @@
 //Forward declare functions:
 void mainMenu(glm::ivec2 _windowSize);
 void subMenu(glm::ivec2 _windowSize);
-void printMainMenu();
-void printSubMenu();
-void printErrorMessage();
-void printThreadCount(int _threadCount);
-void printInfo(int _startX, int _endX, int _offsetX);
 void drawEveryPixel(glm::ivec2 _windowSize);
 void rayTracer(glm::ivec2 _windowSize);
 void rayTracerMT(glm::ivec2 _windowSize, int _threadCount);
 void rayTracerThread(glm::ivec2 _windowSize, ThreadContainer _threadContainer, int _i);
-void rayTracerMTPF(glm::ivec2 _windowSize, int _threadCount);
-void rayTracerThreadPF(glm::ivec2 _windowSize, ThreadContainer _threadContainer);
 
 //Global Variables
 std::mutex mutex;
@@ -42,29 +36,12 @@ int main(int argc, char *argv[])
 	//Variables:
 	glm::ivec2 windowSize(640, 480);
 
-  //printTime(1);
-  //5system("Pause");
+  //Print the Intro
+  Menu menuObj;
+  menuObj.printIntroduction();
 
 	//Call Menu Fucntion
 	mainMenu(windowSize);
-
-	////Initialize
-	//if (!MCG::Init(windowSize)) { return -1; }
-
-	////Blank Canvas
-	//MCG::SetBackground(glm::ivec3(0, 0, 0));
-
-	//Drawing
-	//drawEveryPixel(windowSize);
-
-	//Using the RayTracer
-	//rayTracer(windowSize);
-
-	//Using Multithreaded RayTracer
-	//rayTracerMT(windowSize, 4);
-
-	//Using Multithreaded RayTracer with Process Frame
-	//rayTracerMTPF(windowSize, 4);
 
 	return MCG::ShowAndHold();
 }
@@ -78,7 +55,8 @@ void mainMenu(glm::ivec2 _windowSize)
   glm::ivec2 windowSize = _windowSize;
 
 	//Print Main Menu
-	printMainMenu(); //Print Menu
+  Menu menuObj;
+	menuObj.printMain(); //Print Menu
 
 	//While no Input
 	while (menuSelection == 0)
@@ -91,18 +69,30 @@ void mainMenu(glm::ivec2 _windowSize)
 		{
 		case 1:
 			//Using 1 Thread
-			break;
+      if (!MCG::Init(windowSize)) { return; } //Initialize
+      MCG::SetBackground(glm::ivec3(0, 0, 0)); //Blank Canvas
+      rayTracerMT(windowSize, 1); //Ray Tracer Multi-Threaded Func
 
+			break;
 		case 2:
 			//Using 2 Threads
+      if (!MCG::Init(windowSize)) { return; } //Initialize
+      MCG::SetBackground(glm::ivec3(0, 0, 0)); //Blank Canvas
+      rayTracerMT(windowSize, 2); //Ray Tracer Multi-Threaded Func
 
 			break;
 		case 3:
 			//Using 4 Threads
+      if (!MCG::Init(windowSize)) { return; } //Initialize
+      MCG::SetBackground(glm::ivec3(0, 0, 0)); //Blank Canvas
+      rayTracerMT(windowSize, 4); //Ray Tracer Multi-Threaded Func
 
 			break;
 		case 4:
 			//Using 8 Threads
+      if (!MCG::Init(windowSize)) { return; } //Initialize
+      MCG::SetBackground(glm::ivec3(0, 0, 0)); //Blank Canvas
+      rayTracerMT(windowSize, 8); //Ray Tracer Multi-Threaded Func
 
 			break;
 		case 5:
@@ -132,7 +122,8 @@ void subMenu(glm::ivec2 _windowSize)
 	while (threadCount == 0)
 	{
 	  //Print Menu
-	  printSubMenu(); //Print Menu
+    Menu menuObj;
+	  menuObj.printSub(); //Print Menu
 
 		//User Input
 		std::cin >> threadCount;
@@ -148,7 +139,7 @@ void subMenu(glm::ivec2 _windowSize)
       if (threadCount == i)
 			{
         //Print To Console
-        printThreadCount(threadCount); //Print Thread Count
+        menuObj.printThreadCount(threadCount); //Print Thread Count
 
         //Using Multithreaded RayTracer
         if (!MCG::Init(windowSize)) { return; } //Initialize
@@ -164,7 +155,7 @@ void subMenu(glm::ivec2 _windowSize)
         threadCount = 0; 
         
         //Print to console
-				printErrorMessage(); //Print the error message
+				menuObj.printErrorMessage(); //Print the error message
 
         break; //Break out of for loop
  			}
@@ -172,89 +163,6 @@ void subMenu(glm::ivec2 _windowSize)
 	}
 
 	return;
-}
-//-------------------------------------------------------------------------------------------------//
-///PRINT FUNCTIONS
-//Printing Main Menu
-void printMainMenu()
-{
-  //Clear the screen
-  system("CLS"); 
-
-	//Text to screen
-	std::cout << "//---------- A MULT-THREADED RAY TRACER ----------//" << "\n"
-	        	<< "                                                    " << "\n"
-        		<< " 1 -> Ray Tracer Using One Thread                   " << "\n"
-		        << " 2 -> Ray Tracer Using Two Threads                  " << "\n"
-	        	<< " 3 -> Ray Tracer Using Four Threads                 " << "\n"
-	        	<< " 4 -> Ray Tracer Using Eight Threads                " << "\n"
-	        	<< " 5 -> Ray Tracer Using a Dyanmic Threads List       " << "\n"
-		        << "                                                    " << "\n"
-	        	<< " 9 -> Exit                                          " << "\n"
-		        << "                                                    " << "\n"
-	        	<< " Choose and Option -> ";
-
-	return;
-}
-//Print Sub Menu for dynamic thread count
-void printSubMenu()
-{
-  //Clear the screen
-  system("CLS");
-
-	//Text to screen
-	std::cout << "//---------- A MULT-THREADED RAY TRACER ----------//" << "\n"
-	        	<< "                                                    " << "\n"
-	        	<< " In a Dynamic List of Threads, you as the user      " << "\n"
-	        	<< " defines how many threads you would like to use.    " << "\n"
-	        	<< "																								    " << "\n"
-	        	<< " Using a geometric sequence of Xi*2 choose a number " << "\n"
-	          << " of threads from 1, 2, 4, or 8                      " << "\n"
-		        << "                                                    " << "\n"
-		        << " Choose and Option -> ";
-	return;
-}
-//Print Error Message
-void printErrorMessage()
-{
-  //Clear the screen
-  system("CLS");
-
-	//Text to screen
-	std::cout << "//---------- A MULT-THREADED RAY TRACER ----------//" << "\n"
-		        << "                                                    " << "\n"
-	        	<< "****************************************************" << "\n"
-	        	<< "                   INVALID INPUT                    " << "\n"
-        		<< "             PLEASE TRY A VALID INPUT               " << "\n"
-	        	<< "****************************************************" << "\n";
-
-	Sleep(2000); //Sleep for 2 seconds
-
-	return;
-}
-//Print Thread Count Message
-void printThreadCount(int _threadCount)
-{
-  //Clear the screen
-  system("CLS");
-
-  //Text to Screen
-  std::cout << "****************************************************" << "\n"
-            << "                                                    " << "\n"
-            << " Muti-Threaded Ray Tracer using " << _threadCount << " threads   " << "\n"
-            << "                                                    " << "\n"
-            << "****************************************************" << "\n"
-            << std::endl;
-
-  return;
-}
-//Print Time
-void printInfo(int _startX, int _endX, int _offsetX)
-{
-  std::cout << "Start X " << _startX << "\n"
-    << "End X " << _endX << "\n"
-    << "Offset X " << _offsetX << "\n";
-  return;
 }
 //-------------------------------------------------------------------------------------------------//
 //Ray Tracer
@@ -307,6 +215,9 @@ void rayTracerMT(glm::ivec2 _windowSize, int _threadCount)
 
 	//Vector of ThreadContainer
 	std::vector<ThreadContainer> vecThreadContainer;
+
+  //Clear the screen
+  system("CLS");
 
   //Start Time of Ray Tracer
   std::cout << "****************************************************" << std::endl;
@@ -409,110 +320,6 @@ void rayTracerThread(glm::ivec2 _windowSize, ThreadContainer _threadContainer, i
     << "Elapsed time: " << elapsed_seconds.count() << "s\n";
 
   std::cout << "****************************************************" << "\n" << std::endl;
-
-	return;
-}
-//-------------------------------------------------------------------------------------------------//
-//Multi-Threaded Ray Tracer Process Frame
-void rayTracerMTPF(glm::ivec2 _windowSize, int _threadCount)
-{
-	//Create Local Variables
-	int windowX = _windowSize.x;            // 640
-	int windowY = _windowSize.y;            // 480
-
-	const int threadCount = _threadCount;   // 4
-
-	int startX = 0; //Starting Point        // 0
-	int startY = 0; //Starting Point        // 0
-
-	int endX = windowX; //End Point         // 640
-	int endY = windowY; //End Point         // 480
-
-	int offsetX = windowX / threadCount;    // 640 / 4
-	int offsetY = windowY;                  // 480
-
-	//Vector of ThreadContainer
-	std::vector<ThreadContainer> vecThreadContainer;
-
-	//Initialize Vector
-	for (int i = 0; i < threadCount; i++)
-	{
-		//Create a temp ThreadContainer Obj
-		ThreadContainer tempTC(startX, startY, endX, endY, offsetX, offsetY);
-
-		//Set tempTC Thread to a make shared ptr
-		tempTC.m_Thread = std::make_shared<std::thread>(rayTracerThreadPF, _windowSize, tempTC);
-
-		//Put into vector list
-		vecThreadContainer.push_back(tempTC);
-
-		//Offset
-		startX += offsetX;
-	}
-
-	//Call each thread
-	for (int i = 0; i < threadCount; i++)
-	{
-		vecThreadContainer[i].m_Thread->join();
-	}
-
-	return;
-}
-
-void rayTracerThreadPF(glm::ivec2 _windowSize, ThreadContainer _threadContainer)
-{
-	//Variables:
-	glm::ivec2 pixelPos;
-	glm::ivec3 pixelCol(255, 0, 0);
-
-	//Keep track of time
-	float timer = 0.0f;
-
-	Camera camera(glm::mat4(1), glm::perspective(0.7f, ((float)_windowSize.x / (float)_windowSize.y), 0.1f, 100.0f));
-	Tracer tracer;
-
-	//Get the variables from the pass through obj and store as local variables
-	int startX = _threadContainer.getStartX();
-	int startY = _threadContainer.getStartY();
-	int endX = _threadContainer.getEndX();
-	int endY = _threadContainer.getEndY();
-	int offsetX = _threadContainer.getOffsetX();
-	int offsetY = _threadContainer.getOffsetY();
-
-	while (MCG::ProcessFrame())
-	{
-		// Set every pixel to the same colour
-		MCG::SetBackground(glm::ivec3(0, 0, 0));
-
-		// Update our time variable
-		timer += 1.0f / 60.0f;
-
-		//Nested For
-		for (int y = startY; y <= endY; y++)
-		{
-			for (int x = startX; x <= endX; x++)
-			{
-				pixelPos = glm::ivec2(x, y);
-
-				Ray ray = camera.createRay(pixelPos, _windowSize);
-
-				glm::vec3 pixelCol = tracer.traceRay(ray);
-
-				mutex.lock();
-
-				MCG::DrawPixel(pixelPos, pixelCol);
-
-				mutex.unlock();
-			}
-
-			mutex.lock();
-
-			MCG::ProcessFrame();
-
-			mutex.unlock();
-
-		}
-	}
 
 	return;
 }
